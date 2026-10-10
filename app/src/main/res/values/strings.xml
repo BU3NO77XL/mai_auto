@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">LUNA</string>
+    <string name="accessibility_description">LUNA lê e controla a interface da Shopee durante o autoteste e futuras automações iniciadas por você.</string>
+</resources>
