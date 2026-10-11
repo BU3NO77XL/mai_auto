@@ -99,6 +99,15 @@ tasks.configureEach {
     }
 }
 
+// Expõe versionName/versionCode para o CI nomear tag + Release.
+// Uso: ./gradlew -q :app:printVersionName
+tasks.register("printVersionName") {
+    doLast { println(android.defaultConfig.versionName) }
+}
+tasks.register("printVersionCode") {
+    doLast { println(android.defaultConfig.versionCode) }
+}
+
 dependencies {
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
 }

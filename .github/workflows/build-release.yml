@@ -1,6 +1,7 @@
 name: Build e assinar APK (release)
 
-# PARTE 1 do robô: só builda + assina. O envio pro Cloudflare fica pro passo seguinte.
+# PARTE 1 do robô: builda + assina + publica Release no GitHub.
+# O envio pro Cloudflare fica pro passo seguinte.
 # Monorepo: o projeto Android mora em android/.
 on:
   workflow_dispatch:
@@ -9,6 +10,13 @@ on:
     paths:
       - 'android/**'
       - '.github/workflows/build-release.yml'
+    # Ignora os commits de tag (v*) que o próprio robô cria — sem isso,
+    # publicar a release dispararia o workflow de novo em loop.
+    tags-ignore:
+      - 'v*'
+
+permissions:
+  contents: write # necessário para criar tag + Release via GITHUB_TOKEN
 
 defaults:
   run:
@@ -50,12 +58,21 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/build/ci-upload-keystore.p12
           ls -la app/build/ci-upload-keystore.p12
 
+      - name: Ler versionName/versionCode do Gradle
+        id: version
+        run: |
+          chmod +x gradlew
+          NAME=$(./gradlew -q :app:printVersionName --offline 2>/dev/null | tail -n 1)
+          CODE=$(./gradlew -q :app:printVersionCode --offline 2>/dev/null | tail -n 1)
+          echo "versionName=$NAME versionCode=$CODE"
+          echo "name=$NAME" >> "$GITHUB_OUTPUT"
+          echo "code=$CODE" >> "$GITHUB_OUTPUT"
+
       - name: Build APK release assinado
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          chmod +x gradlew
           ./gradlew assembleRelease --stacktrace
 
       - name: Conferir assinatura
@@ -66,9 +83,25 @@ jobs:
           echo "apksigner: $APKSIGNER"
           "$APKSIGNER" verify --print-certs "$APK" | head -n 10
 
-      - name: Guardar APK como artifact
+      - name: Guardar APK como artifact (backup 7 dias)
         uses: actions/upload-artifact@v4
         with:
           name: app-release
           path: android/app/build/outputs/apk/release/*.apk
           retention-days: 7
+
+      - name: Publicar Release com tag de versão
+        uses: softprops/action-gh-release@v2
+        with:
+          # Tag = v + versionName do Gradle (ex: v0.2.0). Se a tag já existir,
+          # a action só anexa/atualiza os arquivos em vez de falhar.
+          tag_name: v${{ steps.version.outputs.name }}
+          name: Mai v${{ steps.version.outputs.name }} (${{ steps.version.outputs.code }})
+          body: |
+            APK release assinado gerado automaticamente pelo CI.
+
+            - **versionName:** ${{ steps.version.outputs.name }}
+            - **versionCode:** ${{ steps.version.outputs.code }}
+            - **Commit:** ${{ github.sha }}
+          files: android/app/build/outputs/apk/release/*.apk
+          make_latest: true
