@@ -28,12 +28,16 @@ jobs:
           java-version: '17'
 
       - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
+        # v3 instalava por padrão o pacote 'tools', que o Google removeu do
+        # repositório — quebrava com "Failed to find package 'tools'".
+        # v4 + packages:'' instala só cmdline-tools; o resto vai via sdkmanager.
+        uses: android-actions/setup-android@v4
         with:
-          cmdline-tools-version: 11076708
+          packages: ''
 
       - name: Instalar platform + build-tools do projeto
         run: |
+          yes | sdkmanager --licenses > /dev/null
           sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "platform-tools"
           sdkmanager --list_installed
 
