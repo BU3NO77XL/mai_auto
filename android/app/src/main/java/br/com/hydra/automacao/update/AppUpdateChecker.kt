@@ -87,6 +87,12 @@ object AppUpdateChecker {
     }
 
     /** Baixa o APK via DownloadManager e instala ao concluir. Retorna o ID do download. */
+    @Volatile
+    private var activeDownloadId: Long? = null
+
+    @Volatile
+    private var activeReceiver: BroadcastReceiver? = null
+
     fun downloadAndInstall(context: Context, remote: RemoteVersion): Long? {
         // Android 8+: sem "fontes desconhecidas" o instalador falha com
         // "problema ao analisar o pacote". Redireciona para a tela de permissão.
@@ -100,7 +106,27 @@ object AppUpdateChecker {
             context.startActivity(intent)
             return null
         }
-        val fileName = "mai-${remote.version}.apk"
+        // Single-flight: cancela download anterior ainda pendente e remove o
+        // receiver antigo — sem isso, cada toque em "Atualizar" empilha um
+        // receiver e todos disparam installApk juntos ao concluir.
+        val dm = context.getSystemService(DownloadManager::class.java)
+        activeReceiver?.let {
+            try {
+                context.unregisterReceiver(it)
+            } catch (_: Exception) {
+            }
+            activeReceiver = null
+        }
+        activeDownloadId?.let {
+            try {
+                dm.remove(it)
+            } catch (_: Exception) {
+            }
+            activeDownloadId = null
+        }
+        // Nome único por build: evita que dois downloads concorram pelo mesmo
+        // arquivo mai-0.2.0.apk e o instalador pegue um arquivo parcial.
+        val fileName = "mai-${remote.version}-${remote.build}.apk"
         val request = DownloadManager.Request(Uri.parse(remote.url)).apply {
             setTitle("Mai v${remote.version}")
             setDescription("Baixando atualização…")
@@ -108,13 +134,15 @@ object AppUpdateChecker {
             setMimeType("application/vnd.android.package-archive")
             setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, fileName)
         }
-        val dm = context.getSystemService(DownloadManager::class.java)
         val downloadId = dm.enqueue(request)
+        activeDownloadId = downloadId
 
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(c: Context, intent: Intent) {
                 val id = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1)
                 if (id != downloadId) return
+                activeReceiver = null
+                activeDownloadId = null
                 try {
                     c.unregisterReceiver(this)
                 } catch (_: Exception) {
@@ -124,6 +152,7 @@ object AppUpdateChecker {
                 }
             }
         }
+        activeReceiver = receiver
         context.registerReceiver(receiver, IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE))
         return downloadId
     }
@@ -139,6 +168,18 @@ object AppUpdateChecker {
     }
 
     private fun installApk(context: Context, downloadId: Long) {
+        // A permissão pode ter sido revogada entre o download e a instalação.
+        // Recheca aqui em vez de deixar o instalador falhar com erro genérico.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            !context.packageManager.canRequestPackageInstalls()
+        ) {
+            val intent = Intent(
+                android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                Uri.parse("package:${context.packageName}"),
+            ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+            context.startActivity(intent)
+            return
+        }
         val dm = context.getSystemService(DownloadManager::class.java)
         // URI content://downloads/all_downloads/<id> — o instalador lê direto
         // do DownloadManager, sem depender de caminho de arquivo scoped storage.
