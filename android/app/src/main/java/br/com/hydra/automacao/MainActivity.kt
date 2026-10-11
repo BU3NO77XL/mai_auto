@@ -16,6 +16,8 @@ import android.widget.Toast
 import br.com.hydra.automacao.automation.AutotestService
 import br.com.hydra.automacao.automation.HydraAccessibilityService
 import br.com.hydra.automacao.automation.TestResultStore
+import br.com.hydra.automacao.update.AppUpdateChecker
+import br.com.hydra.automacao.update.UpdateDialog
 import br.com.hydra.automacao.ui.components.CozyFloatingNav
 import br.com.hydra.automacao.ui.components.CozyPulseDot
 import br.com.hydra.automacao.ui.screens.HistoricoScreen
@@ -50,6 +52,21 @@ class MainActivity : Activity() {
 
         setupRootView()
         renderCurrentScreen()
+        checkForUpdates()
+    }
+
+    /**
+     * Verifica o version.json no R2 uma vez por abertura.
+     * Se houver build maior, mostra o diálogo "Nova versão disponível".
+     */
+    private fun checkForUpdates() {
+        AppUpdateChecker.check(this) { result ->
+            if (result is AppUpdateChecker.CheckResult.UpdateAvailable) {
+                UpdateDialog(this, result.remote) {
+                    AppUpdateChecker.downloadAndInstall(this, result.remote)
+                }.show()
+            }
+        }
     }
 
     override fun onResume() {
