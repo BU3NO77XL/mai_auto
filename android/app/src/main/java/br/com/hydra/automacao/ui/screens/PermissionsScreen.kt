@@ -164,12 +164,12 @@ class PermissionsScreen(
                 addView(ImageView(activity).apply { setImageResource(R.drawable.fig_perm_shield_check) },
                     FrameLayout.LayoutParams(dp(7), dp(5)).apply { leftMargin = dp(6); topMargin = dp(7) })
             }, LinearLayout.LayoutParams(dp(20), dp(20)))
-            titleRow.addView(label("Como o Mai utiliza os acessos", 15f, BLACK, HydraTheme.fontMedium).apply {
+            titleRow.addView(label("Como a Mai utiliza os acessos", 15f, BLACK, HydraTheme.fontMedium).apply {
                 gravity = Gravity.CENTER_VERTICAL
             }, LinearLayout.LayoutParams(-2, dp(20)))
             addView(titleRow, LinearLayout.LayoutParams(-1, dp(20)))
             addView(space(10))
-            addView(label("O Mai só interage com a tela\nquando você inicia uma tarefa.\nSeus dados permanecem protegidos.", 13f, MUTED).apply {
+            addView(label("A Mai só interage com a tela\nquando você inicia uma tarefa.\nSeus dados permanecem protegidos.", 13f, MUTED).apply {
                 setPadding(dp(4), 0, 0, 0)
             },
                 LinearLayout.LayoutParams(-2, LinearLayout.LayoutParams.WRAP_CONTENT))

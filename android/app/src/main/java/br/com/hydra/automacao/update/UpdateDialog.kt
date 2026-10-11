@@ -40,11 +40,12 @@ class UpdateDialog(
         })
 
         card.addView(TextView(context).apply {
-            text = "Uma nova versão do Mai chegou 🎉\n\n" +
+            text = "Uma nova versão da Mai chegou 🎉\n\n" +
                 "Atualizar é rapidinho: toque no botão abaixo e pronto, " +
                 "em segundos você já está com tudo novinho.\n\n" +
                 "Se o celular pedir permissão para \"instalar apps de outras fontes\", " +
-                "pode permitir sem medo — é o próprio Mai se atualizando. " +
+                "pode permitir sem medo — é a própria Mai pedindo passagem para entregar " +
+                "as novidades para você. " +
                 "Toque em Configurações, ative a chavinha e volte aqui para concluir. 💚"
             textSize = 14f
             typeface = HydraTheme.fontRegular
