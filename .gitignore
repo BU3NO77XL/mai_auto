@@ -3,10 +3,16 @@
 .idea/
 .kiro/
 local.properties
+android/local.properties
 **/build/
 *.iml
 *.apk
 *.aab
+*.jks
+*.keystore
+*.p12
+signing.properties
+android/app/signing.properties
 captures/
 .externalNativeBuild/
 .cxx/

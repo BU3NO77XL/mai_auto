@@ -1,0 +1,70 @@
+name: Build e assinar APK (release)
+
+# PARTE 1 do robô: só builda + assina. O envio pro Cloudflare fica pro passo seguinte.
+# Monorepo: o projeto Android mora em android/.
+on:
+  workflow_dispatch:
+  push:
+    branches: [master]
+    paths:
+      - 'android/**'
+      - '.github/workflows/build-release.yml'
+
+defaults:
+  run:
+    working-directory: android
+
+jobs:
+  build-signed-apk:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          cmdline-tools-version: 11076708
+
+      - name: Instalar platform + build-tools do projeto
+        run: |
+          sdkmanager --install "platforms;android-35" "build-tools;35.0.0" "platform-tools"
+          sdkmanager --list_installed
+
+      - name: Criar local.properties (SDK do runner)
+        run: echo "sdk.dir=$ANDROID_HOME" > local.properties
+
+      - name: Restaurar keystore do secret
+        run: |
+          mkdir -p app/build
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 --decode > app/build/ci-upload-keystore.p12
+          ls -la app/build/ci-upload-keystore.p12
+
+      - name: Build APK release assinado
+        env:
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+        run: |
+          chmod +x gradlew
+          ./gradlew assembleRelease --stacktrace
+
+      - name: Conferir assinatura
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
+          echo "APK: $APK"
+          APKSIGNER=$(ls "$ANDROID_HOME"/build-tools/*/apksigner | sort -V | tail -n 1)
+          echo "apksigner: $APKSIGNER"
+          "$APKSIGNER" verify --print-certs "$APK" | head -n 10
+
+      - name: Guardar APK como artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release
+          path: android/app/build/outputs/apk/release/*.apk
+          retention-days: 7
