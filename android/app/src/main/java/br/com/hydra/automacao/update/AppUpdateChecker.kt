@@ -11,8 +11,6 @@ import android.os.Build
 import android.os.Environment
 import android.os.Handler
 import android.os.Looper
-import androidx.core.content.FileProvider
-import java.io.File
 import java.net.HttpURLConnection
 import java.net.URL
 import org.json.JSONObject
@@ -110,7 +108,7 @@ object AppUpdateChecker {
                 } catch (_: Exception) {
                 }
                 if (isDownloadSuccessful(c, downloadId)) {
-                    installApk(c, fileName)
+                    installApk(c, downloadId)
                 }
             }
         }
@@ -128,9 +126,11 @@ object AppUpdateChecker {
         }
     }
 
-    private fun installApk(context: Context, fileName: String) {
-        val file = File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName)
-        val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+    private fun installApk(context: Context, downloadId: Long) {
+        val dm = context.getSystemService(DownloadManager::class.java)
+        // URI content://downloads/all_downloads/<id> — o instalador lê direto
+        // do DownloadManager, sem depender de caminho de arquivo scoped storage.
+        val uri = dm.getUriForDownloadedFile(downloadId) ?: return
         val intent = Intent(Intent.ACTION_VIEW).apply {
             setDataAndType(uri, "application/vnd.android.package-archive")
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
