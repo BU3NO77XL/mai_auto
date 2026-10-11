@@ -62,9 +62,13 @@ jobs:
         id: version
         run: |
           chmod +x gradlew
-          NAME=$(./gradlew -q :app:printVersionName --offline 2>/dev/null | tail -n 1)
-          CODE=$(./gradlew -q :app:printVersionCode --offline 2>/dev/null | tail -n 1)
+          # Sem --offline: no CI a primeira execução precisa baixar o Gradle/AGP.
+          # grep filtra só a linha da versão; tail pega o valor impresso pela task.
+          NAME=$(./gradlew -q :app:printVersionName 2>/dev/null | grep -E '^[0-9]+\.[0-9]+\.[0-9]+' | tail -n 1)
+          CODE=$(./gradlew -q :app:printVersionCode 2>/dev/null | grep -E '^[0-9]+$' | tail -n 1)
           echo "versionName=$NAME versionCode=$CODE"
+          test -n "$NAME" || { echo "::error::versionName vazio"; exit 1; }
+          test -n "$CODE" || { echo "::error::versionCode vazio"; exit 1; }
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
           echo "code=$CODE" >> "$GITHUB_OUTPUT"
 
