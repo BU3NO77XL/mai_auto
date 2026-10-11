@@ -144,10 +144,16 @@ class HistoricoScreen(
         gravity = Gravity.CENTER_VERTICAL
         background = HydraTheme.rounded(context, Color.WHITE, 18, Color.rgb(232, 232, 232), 1)
         val padV = dp(16); setPadding(dp(12), padV, dp(12), padV)
-        addView(ImageView(context).apply {
-            setImageResource(R.drawable.img_historico_thumb)
-            scaleType = ImageView.ScaleType.CENTER_CROP
+        addView(FrameLayout(context).apply {
             background = HydraTheme.rounded(context, BLACK, 12); clipToOutline = true
+            addView(ImageView(context).apply {
+                setImageResource(R.drawable.img_historico_thumb)
+                scaleType = ImageView.ScaleType.CENTER_CROP
+            }, FrameLayout.LayoutParams(-1, -1))
+            // Botão play centralizado — igual ao preview de Último resultado (Home).
+            addView(ImageView(context).apply {
+                setImageResource(R.drawable.ic_play_preview)
+            }, FrameLayout.LayoutParams(dp(24), dp(24), Gravity.CENTER))
         }, LinearLayout.LayoutParams(dp(88), dp(60)).apply { marginEnd = dp(16) })
         addView(LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
