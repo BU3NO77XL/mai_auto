@@ -78,7 +78,9 @@ class UpdateDialog(
         prefs.edit().putInt("last_title_pick", index).apply()
 
         card.addView(TextView(context).apply {
-            text = "${TITLES[index]} · v${remote.version}"
+            // Sufixo -(versão): diferencia builds da mesma versionName
+            // (ex: -0.2.0 (9) vs -0.2.0 (10)).
+            text = "${TITLES[index]} -${remote.version} (${remote.build})"
             textSize = 18f
             typeface = HydraTheme.fontMedium
             setTextColor(HydraTheme.textPrimary)
