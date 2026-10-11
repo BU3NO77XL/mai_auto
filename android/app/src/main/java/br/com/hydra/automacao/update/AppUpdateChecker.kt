@@ -180,7 +180,10 @@ object AppUpdateChecker {
             context.startActivity(intent)
             return
         }
+        // Limpa APKs de versões antigas: mantém só o que será instalado agora.
+        // Evita acumular mai-*.apk na pasta Downloads do cliente.
         val dm = context.getSystemService(DownloadManager::class.java)
+        cleanupOldApks(context, dm, downloadId)
         // URI content://downloads/all_downloads/<id> — o instalador lê direto
         // do DownloadManager, sem depender de caminho de arquivo scoped storage.
         val uri = dm.getUriForDownloadedFile(downloadId) ?: return
@@ -189,5 +192,48 @@ object AppUpdateChecker {
             addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
         }
         context.startActivity(intent)
+    }
+
+    /**
+     * Remove da fila do DownloadManager todos os downloads antigos do Mai,
+     * mantendo só o atual. Também apaga arquivos mai-*.apk órfãos na pasta
+     * Downloads (de versões que já instalaram ou falharam).
+     */
+    private fun cleanupOldApks(context: Context, dm: DownloadManager, keepDownloadId: Long) {
+        try {
+            dm.query(DownloadManager.Query()).use {
+                val idCol = it.getColumnIndexOrThrow(DownloadManager.COLUMN_ID)
+                val uriCol = it.getColumnIndexOrThrow(DownloadManager.COLUMN_LOCAL_URI)
+                while (it.moveToNext()) {
+                    val id = it.getLong(idCol)
+                    if (id == keepDownloadId) continue
+                    val uri = it.getString(uriCol) ?: continue
+                    if (uri.contains("mai-", ignoreCase = true) && uri.endsWith(".apk")) {
+                        try {
+                            dm.remove(id)
+                        } catch (_: Exception) {
+                        }
+                    }
+                }
+            }
+        } catch (_: Exception) {
+        }
+        try {
+            val downloads = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)
+                ?: Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS)
+            downloads.listFiles { f ->
+                f.isFile && f.name.startsWith("mai-", ignoreCase = true) &&
+                    f.name.endsWith(".apk", ignoreCase = true)
+            }?.forEach {
+                // Mantém o arquivo do download atual (mesmo nome do keep ou
+                // qualquer mai-*-<build-atual>; remove o resto).
+                try {
+                    val currentUri = dm.getUriForDownloadedFile(keepDownloadId)?.toString().orEmpty()
+                    if (!currentUri.contains(it.name)) it.delete()
+                } catch (_: Exception) {
+                }
+            }
+        } catch (_: Exception) {
+        }
     }
 }

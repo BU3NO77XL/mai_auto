@@ -32,7 +32,7 @@ class UpdateDialog(
         }
 
         card.addView(TextView(context).apply {
-            text = "Nova versão disponível"
+            text = "Nova versão disponível · v${remote.version}"
             textSize = 18f
             typeface = HydraTheme.fontMedium
             setTextColor(HydraTheme.textPrimary)
@@ -40,7 +40,12 @@ class UpdateDialog(
         })
 
         card.addView(TextView(context).apply {
-            text = "Mai v${remote.version} já está pronta para download."
+            text = "Uma nova versão do Mai chegou 🎉\n\n" +
+                "Atualizar é rapidinho: toque no botão abaixo e pronto, " +
+                "em segundos você já está com tudo novinho.\n\n" +
+                "Se o celular pedir permissão para \"instalar apps de outras fontes\", " +
+                "pode permitir sem medo — é o próprio Mai se atualizando. " +
+                "Toque em Configurações, ative a chavinha e volte aqui para concluir. 💚"
             textSize = 14f
             typeface = HydraTheme.fontRegular
             setTextColor(HydraTheme.textSecondary)
