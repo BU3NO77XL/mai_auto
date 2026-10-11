@@ -1,4 +1,4 @@
-# Hydra — Automação Shopee
+# Mai — Automação Shopee
 
 App Android de automação para afiliados da Shopee. Controla o celular via Serviço de Acessibilidade do Android para navegar de forma autônoma: abre o app, vai até a tela de criação de vídeo, entra na galeria, seleciona vídeo, preenche legenda, anexa produtos afiliados e publica — sem intervenção humana.
 
@@ -12,7 +12,7 @@ App Android de automação para afiliados da Shopee. Controla o celular via Serv
 - Abre a Shopee automaticamente
 - Navega: Home → aba Live/Vídeo → botão criar → aba Vídeo → Biblioteca
 - Confirma que a galeria abriu (sem selecionar nenhum vídeo)
-- Retorno limpo: swipe down para fechar galeria → X da câmera → Home Android → volta para o Hydra
+- Retorno limpo: swipe down para fechar galeria → X da câmera → Home Android → volta para o Mai
 - Registra resultado com passo, mensagem e timestamp
 
 ### Motor de fluxo (FlowEngine)
@@ -69,7 +69,7 @@ adb install -r app\build\outputs\apk\debug\app-debug.apk
 
 ### Preparar o keystore para publicar o app
 
-Pense no keystore como a **chave de identidade do app**: ele prova que uma atualização veio de quem publicou a versão anterior. Por isso, guarde o arquivo e a senha em segurança. Se você já tem o arquivo `luna-upload.p12`, **não gere outro**: use sempre o mesmo nas próximas versões.
+Pense no keystore como a **chave de identidade do app**: ele prova que uma atualização veio de quem publicou a versão anterior. Por isso, guarde o arquivo e a senha em segurança. Use sempre o mesmo arquivo `mai-upload.p12` nas próximas versões.
 
 Siga estes passos no Windows. Os comandos devem ser executados no PowerShell, aberto na pasta deste projeto.
 
@@ -77,10 +77,10 @@ Siga estes passos no Windows. Os comandos devem ser executados no PowerShell, ab
 
    ```powershell
    New-Item -ItemType Directory -Force "$env:USERPROFILE\.android\keystores"
-   keytool -genkeypair -v -keystore "$env:USERPROFILE\.android\keystores\luna-upload.p12" -storetype PKCS12 -alias luna-upload -keyalg RSA -keysize 3072 -validity 10000
+   keytool -genkeypair -v -keystore "$env:USERPROFILE\.android\keystores\mai-upload.p12" -storetype PKCS12 -alias mai-upload -keyalg RSA -keysize 3072 -validity 10000
    ```
 
-   O programa fará perguntas. Crie uma senha e guarde-a. Se ele pedir uma senha separada para a chave, use a mesma senha. O nome `luna-upload` é o alias, ou seja, o nome da chave dentro do arquivo.
+   O programa fará perguntas. Crie uma senha e guarde-a. Se ele pedir uma senha separada para a chave, use a mesma senha. O nome `mai-upload` é o alias, ou seja, o nome da chave dentro do arquivo.
 
 2. **Diga ao projeto onde está o arquivo.** Faça uma cópia do modelo:
 
@@ -88,21 +88,21 @@ Siga estes passos no Windows. Os comandos devem ser executados no PowerShell, ab
    Copy-Item .\signing.properties.example .\app\signing.properties
    ```
 
-   Abra `app/signing.properties` e troque o caminho de exemplo pelo caminho completo do seu arquivo `.p12`. Por exemplo, se ele estiver em `C:\Users\Ana\chaves\luna-upload.p12`, escreva:
+   Abra `app/signing.properties` e troque o caminho de exemplo pelo caminho completo do seu arquivo `.p12`. Por exemplo, se ele estiver em `C:\Users\Ana\chaves\mai-upload.p12`, escreva:
 
    ```properties
-   storeFile=C:\\Users\\Ana\\chaves\\luna-upload.p12
+   storeFile=C:\\Users\\Ana\\chaves\\mai-upload.p12
    ```
 
-   Deixe `storeType=PKCS12`. Em `keyAlias`, escreva o alias usado ao criar a chave (neste exemplo, `luna-upload`). Esse arquivo é uma instrução local para o Gradle encontrar sua chave; não compartilhe nem envie ao GitHub.
+   Deixe `storeType=PKCS12`. Em `keyAlias`, escreva o alias usado ao criar a chave (neste exemplo, `mai-upload`). Esse arquivo é uma instrução local para o Gradle encontrar sua chave; não compartilhe nem envie ao GitHub.
 
 3. **Informe a senha ao Gradle.** No mesmo PowerShell, cole o comando. Digite a senha quando for solicitada; ela não aparecerá enquanto você digita:
 
    ```powershell
    $securePassword = Read-Host "Digite a senha do keystore" -AsSecureString
    $password = [System.Net.NetworkCredential]::new("", $securePassword).Password
-   $env:LUNA_KEYSTORE_PASSWORD = $password
-   $env:LUNA_KEY_PASSWORD = $password
+   $env:MAI_KEYSTORE_PASSWORD = $password
+   $env:MAI_KEY_PASSWORD = $password
    ```
 
    Isso deixa a senha disponível apenas nessa janela do PowerShell. Fechar a janela apaga essas variáveis; na próxima publicação, repita este passo.
@@ -110,10 +110,10 @@ Siga estes passos no Windows. Os comandos devem ser executados no PowerShell, ab
 4. **Gere o arquivo pronto para publicar.** Ainda nessa janela, execute:
 
    ```powershell
-   .\gradlew.bat :app:bundleRelease
+   .\gradlew.bat :app:assembleRelease
    ```
 
-   O Gradle usa o caminho e o alias do passo 2, mais a senha do passo 3, para assinar o app. O arquivo gerado ficará em `app\build\outputs\bundle\release\app-release.aab`.
+   O Gradle usa o caminho e o alias do passo 2, mais a senha do passo 3, para assinar o app. O APK gerado para compartilhar por link ficará em `app\build\outputs\apk\release\app-release.apk`.
 
 **Importante:** faça uma cópia segura do keystore e guarde a senha em um gerenciador de senhas. Nunca envie o arquivo `.p12`, a senha ou `app/signing.properties` ao GitHub. O arquivo `signing.properties.example` é apenas um modelo e pode ser compartilhado.
 
@@ -124,7 +124,7 @@ Siga estes passos no Windows. Os comandos devem ser executados no PowerShell, ab
 
 **Primeiro uso:**
 1. Instale o APK
-2. Abra **Permissões** → ative o Serviço de Acessibilidade Hydra
+2. Abra **Permissões** → ative o Serviço de Acessibilidade Mai
 3. A tela **Perfil** ainda é apenas visual; suas funcionalidades serão definidas posteriormente
 4. Abra **Teste** → toque **Iniciar autoteste** → aguarde ~20s → resultado aparece automaticamente
 

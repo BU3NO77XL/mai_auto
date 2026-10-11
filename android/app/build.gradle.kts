@@ -25,9 +25,11 @@ val releaseStoreFile = signingProperties.getProperty("storeFile")
 val releaseKeyAlias = signingProperties.getProperty("keyAlias")
     ?.takeIf { it.isNotBlank() }
     ?: providers.environmentVariable("KEY_ALIAS").orNull
-val releaseStorePassword = providers.environmentVariable("LUNA_KEYSTORE_PASSWORD").orNull
+val releaseStorePassword = providers.environmentVariable("MAI_KEYSTORE_PASSWORD").orNull
+    ?: providers.environmentVariable("LUNA_KEYSTORE_PASSWORD").orNull
     ?: providers.environmentVariable("KEYSTORE_PASSWORD").orNull
-val releaseKeyPassword = providers.environmentVariable("LUNA_KEY_PASSWORD").orNull
+val releaseKeyPassword = providers.environmentVariable("MAI_KEY_PASSWORD").orNull
+    ?: providers.environmentVariable("LUNA_KEY_PASSWORD").orNull
     ?: providers.environmentVariable("KEYSTORE_PASSWORD").orNull
 val releaseSigningConfigured = releaseStoreFile?.isFile == true &&
     !releaseKeyAlias.isNullOrBlank() &&
@@ -91,7 +93,7 @@ tasks.configureEach {
         doFirst {
             check(releaseSigningConfigured) {
                 "Assinatura de release incompleta. Confira app/signing.properties e defina " +
-                    "LUNA_KEYSTORE_PASSWORD e LUNA_KEY_PASSWORD no ambiente."
+                    "MAI_KEYSTORE_PASSWORD e MAI_KEY_PASSWORD no ambiente."
             }
         }
     }

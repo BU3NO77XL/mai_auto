@@ -11,7 +11,7 @@ import br.com.hydra.automacao.ui.theme.HydraTheme
 
 /**
  * Cabeçalho de identidade compartilhado pelas abas com chrome da Home
- * (Início, Histórico e Teste): avatar, PAINEL LUNA, saudação, badge
+ * (Início, Histórico e Teste): avatar, PAINEL MAI, saudação, badge
  * PLANO ELITE e sino de notificação. Extraído da HomeScreen para
  * reaproveitamento sem duplicação de código.
  */
@@ -32,7 +32,7 @@ fun buildIdentityHeader(context: Context): View = LinearLayout(context).apply {
         setPadding(HydraTheme.dp(context, 10), 0, 0, 0)
     }
     identity.addView(TextView(context).apply {
-        text = "PAINEL LUNA"
+        text = "PAINEL MAI"
         textSize = 10f
         typeface = HydraTheme.fontMedium
         setTextColor(Color.rgb(18, 18, 18))

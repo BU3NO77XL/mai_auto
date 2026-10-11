@@ -94,7 +94,7 @@ class ProductionFlowService : Service() {
 
         val notification = Notification.Builder(this, CHANNEL_PRODUCTION)
             .setSmallIcon(android.R.drawable.ic_media_play)
-            .setContentTitle("LUNA trabalhando")
+            .setContentTitle("Mai trabalhando")
             .setContentText(text)
             .setOngoing(true)
             .build()

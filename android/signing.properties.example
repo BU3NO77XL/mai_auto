@@ -1,13 +1,13 @@
 # Este e apenas um exemplo para orientar a configuracao. O Gradle nao le este arquivo.
 # Siga o passo a passo "Preparar o keystore para publicar o app" no README.
 # Copie este arquivo para app/signing.properties e, na copia, troque o caminho
-# abaixo pelo local onde voce guardou seu arquivo luna-upload.p12.
-# Exemplo: C:\\Users\\Ana\\chaves\\luna-upload.p12
+# abaixo pelo local onde voce guardou seu arquivo mai-upload.p12.
+# Exemplo: C:\\Users\\Ana\\chaves\\mai-upload.p12
 # O arquivo app/signing.properties deve ficar privado e nao ser enviado ao GitHub.
-storeFile=C:\\Users\\seu-usuario\\.android\\keystores\\luna-upload.p12
+storeFile=C:\\Users\\seu-usuario\\.android\\keystores\\mai-upload.p12
 storeType=PKCS12
-keyAlias=luna-upload
+keyAlias=mai-upload
 
 # Use o mesmo nome de alias escolhido quando criou a chave.
 # O README explica como informar a senha no PowerShell sem salva-la aqui.
-# LUNA_KEYSTORE_PASSWORD e LUNA_KEY_PASSWORD
+# MAI_KEYSTORE_PASSWORD e MAI_KEY_PASSWORD

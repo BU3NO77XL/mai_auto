@@ -25,7 +25,7 @@ private const val TAG = "HydraAutoteste"
  *   4. Swipe down para fechar a galeria
  *   5. Toca no iv_back (X) da tela de câmera
  *   6. HomeActivity detectado → Home Android
- *   7. Abre o Hydra e registra resultado
+ *   7. Abre o Mai e registra resultado
  */
 class AutotestService : Service() {
     private val running = AtomicBoolean(false)
@@ -46,7 +46,7 @@ class AutotestService : Service() {
         )
         val notification = Notification.Builder(this, CHANNEL)
             .setSmallIcon(android.R.drawable.ic_media_play)
-            .setContentTitle("LUNA — autoteste")
+            .setContentTitle("Mai — autoteste")
             .setContentText("Navegando pela Shopee automaticamente…")
             .setOngoing(true)
             .build()
@@ -181,7 +181,7 @@ class AutotestService : Service() {
     }
 
     /**
-     * Executa o retorno: swipe down na galeria → X da câmera → Home → abre Hydra.
+     * Executa o retorno: swipe down na galeria → X da câmera → Home → abre Mai.
      * [falha] null = sucesso, não-null = motivo do erro.
      */
     private fun finalizarTeste(svc: HydraAccessibilityService?, falha: String?) {
@@ -213,7 +213,7 @@ class AutotestService : Service() {
                 ?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP)
                 ?.let { startActivity(it) }
         } catch (e: Exception) {
-            Log.w(TAG, "Não consegui abrir o LUNA: ${e.message}")
+            Log.w(TAG, "Não consegui abrir o Mai: ${e.message}")
         }
 
         // Resultado final
@@ -223,7 +223,7 @@ class AutotestService : Service() {
                 "Concluído ✅",
                 "Autoteste completo com sucesso.\n\n" +
                     "IDA:   Shopee → Live/Vídeo → Criar → Biblioteca → Galeria confirmada\n" +
-                    "VOLTA: Swipe down → X câmera → Home Android → LUNA\n\n" +
+                    "VOLTA: Swipe down → X câmera → Home Android → Mai\n\n" +
                     "O motor de navegação está funcionando corretamente.",
                 true
             )

@@ -117,7 +117,7 @@ class MainActivity : Activity() {
         setPadding(0, padV, 0, padV)
 
         val brand = TextView(this@MainActivity).apply {
-            text = "LUNA  ·  AUTOMAÇÃO"
+            text = "MAI  ·  AUTOMAÇÃO"
             textSize = 11.5f
             typeface = HydraTheme.fontMedium
             setTextColor(HydraTheme.primary)
