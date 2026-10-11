@@ -44,14 +44,10 @@ android {
         applicationId = "br.com.hydra.automacao"
         minSdk = 26
         targetSdk = 35
-        // CI: versionCode por data (yyyyMMddNN) — legível, ordenável e visível
-        // nas páginas de download. NN = sequência do run no dia (dois dígitos),
-        // permite até 99 builds/dia. Local: fallback 2.
-        // Ex: 2026101101 = 1º build de 11/10/2026.
-        versionCode = providers.environmentVariable("MAI_BUILD_NUMBER")
-            .orNull?.toIntOrNull()
-            ?: providers.environmentVariable("GITHUB_RUN_NUMBER")
-                .orNull?.toIntOrNull() ?: 2
+        // CI: versionCode = número do run (sempre crescente, garante update).
+        // Local: fallback 2. A data legível vai só no version.json (campo date).
+        versionCode = providers.environmentVariable("GITHUB_RUN_NUMBER")
+            .orNull?.toIntOrNull() ?: 2
         versionName = "0.2.0"
     }
 

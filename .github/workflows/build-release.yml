@@ -72,17 +72,14 @@ jobs:
           echo "name=$NAME" >> "$GITHUB_OUTPUT"
           echo "code=$CODE" >> "$GITHUB_OUTPUT"
 
-      - name: Calcular versionCode por data (yyyyMMddNN)
-        id: buildnum
+      - name: Data do build (só informativa, p/ version.json e Release)
+        id: builddate
         run: |
-          # Data UTC + sequência do run no dia (2 dígitos): 2026101101.
-          # Sempre crescente, legível nas páginas de download, até 99 builds/dia.
-          DAY=$(date -u +%Y%m%d)
-          SEQ=$((${{ github.run_number }} % 100))
-          SEQ=$(printf '%02d' $SEQ)
-          echo "number=${DAY}${SEQ}" >> "$GITHUB_OUTPUT"
-          echo "MAI_BUILD_NUMBER=${DAY}${SEQ}" >> "$GITHUB_ENV"
-          echo "versionCode=${DAY}${SEQ}"
+          # dd/mm/aaaa UTC — vai no campo date do version.json para exibir
+          # "Atualizado em" nas páginas de download. Não afeta o versionCode.
+          DAY=$(date -u +%d/%m/%Y)
+          echo "date=$DAY" >> "$GITHUB_OUTPUT"
+          echo "build_date=$DAY"
 
       - name: Build APK release assinado
         env:
@@ -118,7 +115,7 @@ jobs:
 
             - **versionName:** ${{ steps.version.outputs.name }}
             - **versionCode:** ${{ steps.version.outputs.code }}
-            - **Data:** ${{ steps.buildnum.outputs.number }}
+            - **Data:** ${{ steps.builddate.outputs.date }}
             - **Commit:** ${{ github.sha }}
           files: android/app/build/outputs/apk/release/*.apk
           make_latest: true
@@ -132,19 +129,16 @@ jobs:
           BUCKET: ${{ secrets.R2_BUCKET }}
           VERSION: ${{ steps.version.outputs.name }}
           BUILD: ${{ steps.version.outputs.code }}
-          BUILD_DATE: ${{ steps.buildnum.outputs.number }}
+          BUILD_DATE: ${{ steps.builddate.outputs.date }}
           PUBLIC_URL: https://pub-5311c34a59bf43819f0ed00a3e278737.r2.dev
         run: |
           APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
           SHA=$(sha256sum "$APK" | cut -d' ' -f1)
-          # date = dd/mm/aaaa derivado do versionCode yyyyMMddNN, para exibir
-          # nas páginas de download ("Atualizado em 11/10/2026").
-          DATE_FMT=$(echo "$BUILD_DATE" | sed -E 's/^([0-9]{4})([0-9]{2})([0-9]{2})[0-9]{2}$/\3\/\2\/\1/')
 
           jq -n \
             --arg version "$VERSION" \
             --argjson build "$BUILD" \
-            --arg date "$DATE_FMT" \
+            --arg date "$BUILD_DATE" \
             --arg url "$PUBLIC_URL/app-$VERSION.apk" \
             --arg sha256 "$SHA" \
             '{version:$version, build:$build, date:$date, url:$url, sha256:$sha256}' > version.json
