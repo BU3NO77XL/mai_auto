@@ -23,6 +23,36 @@ class UpdateDialog(
 
     private lateinit var updateButton: CozyButton
 
+    companion object {
+        /** Títulos curtos e acolhedores, sorteados a cada exibição. */
+        private val TITLES = listOf(
+            "Tem novidade pra você ✨",
+            "Cheguei com melhorias 💚",
+            "Olha o que preparei pra você 🎁",
+            "Atualização fresquinha 🌱",
+            "Passei pra deixar tudo melhor 🌟",
+        )
+
+        /** Corpo em 1ª pessoa, sorteado junto. Mantém o passo a passo da permissão. */
+        private val BODIES = listOf(
+            "Sou eu mesma trazendo melhorias para a sua experiência. " +
+                "Atualizar é rapidinho: toque abaixo e pronto! 💚",
+            "Caprichei nessa versão para você ✨ Toque abaixo e " +
+                "em segundos já está tudo novinho.",
+            "Preparei tudo com carinho para a sua experiência ficar ainda melhor. " +
+                "É só tocar abaixo, rapidinho! 🎁",
+            "Vim deixar tudo redondinho para você 🌱 Um toque abaixo " +
+                "e já está pronta!",
+            "Quero ver você aproveitando o melhor de mim 🌟 " +
+                "Atualiza aqui embaixo, é rapidinho!",
+        )
+
+        private const val PERMISSION_HINT =
+            "Se o celular pedir permissão para \"instalar apps de outras fontes\", " +
+                "não se preocupe, sou eu mesma. Toque em Configurações, " +
+                "ative a chavinha e volte aqui para concluir. 💚"
+    }
+
     init {
         val pad = HydraTheme.dp(context, 24)
         val card = LinearLayout(context).apply {
@@ -31,8 +61,24 @@ class UpdateDialog(
             setPadding(pad, pad, pad, pad)
         }
 
+        // Título + corpo sorteados (mesmo índice): nunca repete a mesma
+        // combinação em sequência e mantém 1ª pessoa feminina.
+        val pick = (TITLES.indices).random()
+        val prefs = context.getSharedPreferences("mai_update", Context.MODE_PRIVATE)
+        val lastPick = prefs.getInt("last_title_pick", -1)
+        val index = if (TITLES.size > 1) {
+            var candidate = pick
+            var guard = 0
+            while (candidate == lastPick && guard < 5) {
+                candidate = (TITLES.indices).random()
+                guard++
+            }
+            candidate
+        } else pick
+        prefs.edit().putInt("last_title_pick", index).apply()
+
         card.addView(TextView(context).apply {
-            text = "Nova versão disponível · v${remote.version}"
+            text = "${TITLES[index]} · v${remote.version}"
             textSize = 18f
             typeface = HydraTheme.fontMedium
             setTextColor(HydraTheme.textPrimary)
@@ -40,13 +86,7 @@ class UpdateDialog(
         })
 
         card.addView(TextView(context).apply {
-            text = "Uma nova versão da Mai chegou 🎉\n\n" +
-                "Atualizar é rapidinho: toque no botão abaixo e pronto, " +
-                "em segundos você já está com tudo novinho.\n\n" +
-                "Se o celular pedir permissão para \"instalar apps de outras fontes\", " +
-                "pode permitir sem medo — é a própria Mai pedindo passagem para entregar " +
-                "as novidades para você. " +
-                "Toque em Configurações, ative a chavinha e volte aqui para concluir. 💚"
+            text = BODIES[index] + "\n\n" + PERMISSION_HINT
             textSize = 14f
             typeface = HydraTheme.fontRegular
             setTextColor(HydraTheme.textSecondary)
