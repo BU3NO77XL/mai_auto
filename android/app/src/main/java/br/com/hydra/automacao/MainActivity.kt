@@ -62,9 +62,21 @@ class MainActivity : Activity() {
     private fun checkForUpdates() {
         AppUpdateChecker.check(this) { result ->
             if (result is AppUpdateChecker.CheckResult.UpdateAvailable) {
-                UpdateDialog(this, result.remote) {
-                    AppUpdateChecker.downloadAndInstall(this, result.remote)
-                }.show()
+                var dialog: UpdateDialog? = null
+                dialog = UpdateDialog(this, result.remote) {
+                    val started = AppUpdateChecker.downloadAndInstall(this, result.remote)
+                    // Sem permissão de fontes desconhecidas: fecha e avisa para
+                    // autorizar; o usuário toca em Atualizar de novo depois.
+                    if (started == null) {
+                        dialog?.dismiss()
+                        android.widget.Toast.makeText(
+                            this,
+                            "Autorize \"Instalar apps desconhecidos\" e toque em Atualizar de novo.",
+                            android.widget.Toast.LENGTH_LONG,
+                        ).show()
+                    }
+                }
+                dialog.show()
             }
         }
     }

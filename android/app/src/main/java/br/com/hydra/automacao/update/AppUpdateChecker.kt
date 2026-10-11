@@ -87,7 +87,19 @@ object AppUpdateChecker {
     }
 
     /** Baixa o APK via DownloadManager e instala ao concluir. Retorna o ID do download. */
-    fun downloadAndInstall(context: Context, remote: RemoteVersion): Long {
+    fun downloadAndInstall(context: Context, remote: RemoteVersion): Long? {
+        // Android 8+: sem "fontes desconhecidas" o instalador falha com
+        // "problema ao analisar o pacote". Redireciona para a tela de permissão.
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O &&
+            !context.packageManager.canRequestPackageInstalls()
+        ) {
+            val intent = Intent(
+                android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES,
+                Uri.parse("package:${context.packageName}"),
+            ).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) }
+            context.startActivity(intent)
+            return null
+        }
         val fileName = "mai-${remote.version}.apk"
         val request = DownloadManager.Request(Uri.parse(remote.url)).apply {
             setTitle("Mai v${remote.version}")
