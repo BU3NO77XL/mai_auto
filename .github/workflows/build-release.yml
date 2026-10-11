@@ -109,3 +109,30 @@ jobs:
             - **Commit:** ${{ github.sha }}
           files: android/app/build/outputs/apk/release/*.apk
           make_latest: true
+
+      - name: Enviar APK e version.json pro Cloudflare R2
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: auto
+          ENDPOINT: https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com
+          BUCKET: ${{ secrets.R2_BUCKET }}
+          VERSION: ${{ steps.version.outputs.name }}
+          BUILD: ${{ steps.version.outputs.code }}
+          PUBLIC_URL: https://pub-5311c34a59bf43819f0ed00a3e278737.r2.dev
+        run: |
+          APK=$(ls app/build/outputs/apk/release/*.apk | head -n 1)
+          SHA=$(sha256sum "$APK" | cut -d' ' -f1)
+
+          jq -n \
+            --arg version "$VERSION" \
+            --argjson build "$BUILD" \
+            --arg url "$PUBLIC_URL/app-$VERSION.apk" \
+            --arg sha256 "$SHA" \
+            '{version:$version, build:$build, url:$url, sha256:$sha256}' > version.json
+
+          cat version.json
+
+          aws s3 cp "$APK" "s3://$BUCKET/app-$VERSION.apk" --endpoint-url "$ENDPOINT" --content-type application/vnd.android.package-archive
+          aws s3 cp "$APK" "s3://$BUCKET/app-latest.apk" --endpoint-url "$ENDPOINT" --content-type application/vnd.android.package-archive
+          aws s3 cp version.json "s3://$BUCKET/version.json" --endpoint-url "$ENDPOINT" --content-type application/json --cache-control "no-cache"
