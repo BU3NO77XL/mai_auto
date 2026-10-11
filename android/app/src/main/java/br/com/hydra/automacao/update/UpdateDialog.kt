@@ -36,7 +36,7 @@ class UpdateDialog(
         /** Corpo em 1ª pessoa, sorteado junto. Mantém o passo a passo da permissão. */
         private val BODIES = listOf(
             "Sou eu mesma trazendo melhorias para a sua experiência. " +
-                "Atualizar é rapidinho: toque abaixo e pronto! 💚",
+                "Atualizar é rapidinho: toque abaixo e pronto!",
             "Caprichei nessa versão para você ✨ Toque abaixo e " +
                 "em segundos já está tudo novinho.",
             "Preparei tudo com carinho para a sua experiência ficar ainda melhor. " +
@@ -78,9 +78,9 @@ class UpdateDialog(
         prefs.edit().putInt("last_title_pick", index).apply()
 
         card.addView(TextView(context).apply {
-            // Sufixo -(versão): diferencia builds da mesma versionName
-            // (ex: -0.2.0 (9) vs -0.2.0 (10)).
-            text = "${TITLES[index]} -${remote.version} (${remote.build})"
+            // Só versionName (padrão dos grandes apps): build number é
+            // metadado interno e confunde o usuário leigo.
+            text = "${TITLES[index]} · v${remote.version}"
             textSize = 18f
             typeface = HydraTheme.fontMedium
             setTextColor(HydraTheme.textPrimary)
