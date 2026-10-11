@@ -54,6 +54,11 @@ jobs:
         env:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          # setup-java exporta MAVEN_OPTS/GRADLE_OPTS com -Xmx que o launcher do
+          # Gradle interpreta como classe. Limpa antes de chamar o gradlew.
+          MAVEN_OPTS: ''
+          GRADLE_OPTS: ''
+          JAVA_TOOL_OPTIONS: ''
         run: |
           chmod +x gradlew
           ./gradlew assembleRelease --stacktrace
