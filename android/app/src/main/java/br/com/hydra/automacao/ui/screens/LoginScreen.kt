@@ -33,6 +33,7 @@ class LoginScreen(
     private lateinit var emailInput: EditText
     private lateinit var passwordInput: EditText
     private lateinit var signInButton: CozyButton
+    private lateinit var emailError: TextView
     private var passwordVisible = false
 
     fun buildView(): View = ScrollView(context).apply {
@@ -41,19 +42,45 @@ class LoginScreen(
         addView(LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.WHITE)
-            setPadding(dp(16), dp(69), dp(16), dp(24))
+            setPadding(dp(16), dp(48), dp(16), dp(24))
+
+            // Marca Mai — profissionaliza o topo sem quebrar o Figma
+            // (o Figma não tem logo; adicionamos selo discreto acima do título).
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(View(context).apply {
+                    background = HydraTheme.rounded(context, Color.rgb(35, 83, 62), radiusDp = 12)
+                }, LinearLayout.LayoutParams(dp(36), dp(36)))
+                addView(TextView(context).apply {
+                    text = "Mai"
+                    textSize = 20f
+                    typeface = HydraTheme.fontMedium
+                    setTextColor(TEXT)
+                    gravity = Gravity.CENTER_VERTICAL
+                }, LinearLayout.LayoutParams(-2, dp(36)).apply { marginStart = dp(10) })
+            })
+            addView(space(28))
 
             addView(label("Login Account", 22f, TEXT))
             addView(space(4))
             addView(label("Please login with registered account", 14f, HINT))
-            addView(space(30))
+            addView(space(28))
 
             addView(label("Email or Phone Number", 16f, TEXT))
             addView(space(10))
             emailInput = field("Enter your email or phone number",
                 InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
             addView(emailInput, LinearLayout.LayoutParams(-1, dp(52)))
-            addView(space(20))
+            emailError = TextView(context).apply {
+                textSize = 12f
+                typeface = HydraTheme.fontRegular
+                setTextColor(Color.rgb(196, 76, 58))
+                visibility = View.GONE
+                setPadding(dp(14), dp(6), dp(14), 0)
+            }
+            addView(emailError, LinearLayout.LayoutParams(-1, -2))
+            addView(space(16))
 
             addView(label("Password", 16f, TEXT))
             addView(space(10))
@@ -70,17 +97,29 @@ class LoginScreen(
             addView(space(30))
 
             signInButton = CozyButton(context, text = "Sign In", onClick = {
-                onLogin(emailInput.text.toString().trim())
+                tryLogin()
             }).apply {
                 background = HydraTheme.rounded(context, BTN_DISABLED, radiusDp = 30)
             }
             addView(signInButton, LinearLayout.LayoutParams(-1, dp(56)))
-            addView(space(30))
+            addView(space(28))
 
-            addView(label("Or using other method", 14f, HINT).apply {
-                gravity = Gravity.CENTER
+            // Divisória elegante com traços laterais (padrão profissional).
+            addView(LinearLayout(context).apply {
+                orientation = LinearLayout.HORIZONTAL
+                gravity = Gravity.CENTER_VERTICAL
+                addView(View(context).apply {
+                    setBackgroundColor(FIELD_BORDER)
+                }, LinearLayout.LayoutParams(0, dp(1), 1f))
+                addView(label("Or using other method", 13f, HINT).apply {
+                    gravity = Gravity.CENTER
+                    setPadding(dp(12), 0, dp(12), 0)
+                }, LinearLayout.LayoutParams(-2, -2))
+                addView(View(context).apply {
+                    setBackgroundColor(FIELD_BORDER)
+                }, LinearLayout.LayoutParams(0, dp(1), 1f))
             }, LinearLayout.LayoutParams(-1, -2))
-            addView(space(15))
+            addView(space(16))
 
             addView(socialButton("Sign In with Google", R.drawable.ic_google))
             addView(space(15))
@@ -167,12 +206,41 @@ class LoginScreen(
     }
 
     private fun refreshButton() {
+        emailError.visibility = View.GONE
         val ready = emailInput.text.isNotBlank() && passwordInput.text.isNotBlank()
+        signInButton.isEnabled = ready
+        signInButton.alpha = if (ready) 1f else 0.85f
         signInButton.background = HydraTheme.rounded(
             context,
             if (ready) Color.rgb(35, 83, 62) else BTN_DISABLED,
             radiusDp = 30,
         )
+    }
+
+    /** Validação profissional: email/telefone válido + senha ≥4, erro inline + loading. */
+    private fun tryLogin() {
+        val email = emailInput.text.toString().trim()
+        val pass = passwordInput.text.toString()
+        val emailOk = android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches() ||
+            email.matches(Regex("^[0-9+()\\- ]{8,}$"))
+        if (!emailOk) {
+            emailError.text = "Digite um email ou telefone válido."
+            emailError.visibility = View.VISIBLE
+            emailInput.requestFocus()
+            return
+        }
+        if (pass.length < 4) {
+            emailError.text = "A senha precisa de ao menos 4 caracteres."
+            emailError.visibility = View.VISIBLE
+            passwordInput.requestFocus()
+            return
+        }
+        emailError.visibility = View.GONE
+        signInButton.setLoading(true, "Entrando…")
+        signInButton.postDelayed({
+            signInButton.setLoading(false)
+            onLogin(email)
+        }, 900)
     }
 
     private fun label(value: String, size: Float, color: Int) = TextView(context).apply {
