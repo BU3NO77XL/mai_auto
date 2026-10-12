@@ -12,6 +12,12 @@ class SessionStore(context: Context) {
 
     fun isLoggedIn(): Boolean = prefs.getBoolean("logged_in", false)
 
+    fun hasSeenOnboarding(): Boolean = prefs.getBoolean("onboarding_seen", false)
+
+    fun markOnboardingSeen() {
+        prefs.edit().putBoolean("onboarding_seen", true).apply()
+    }
+
     fun login(email: String) {
         prefs.edit()
             .putBoolean("logged_in", true)

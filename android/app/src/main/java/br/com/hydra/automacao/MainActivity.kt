@@ -18,6 +18,7 @@ import br.com.hydra.automacao.automation.HydraAccessibilityService
 import br.com.hydra.automacao.automation.TestResultStore
 import br.com.hydra.automacao.auth.SessionStore
 import br.com.hydra.automacao.ui.screens.LoginScreen
+import br.com.hydra.automacao.ui.screens.OnboardingScreen
 import br.com.hydra.automacao.update.AppUpdateChecker
 import br.com.hydra.automacao.update.UpdateDialog
 import br.com.hydra.automacao.ui.components.CozyFloatingNav
@@ -52,9 +53,14 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
 
-        // Login simulado (Figma Sign in): sem sessão, mostra login em tela
-        // cheia. O backend vai trocar o SessionStore por API depois.
-        if (!SessionStore(this).isLoggedIn()) {
+        // Fluxo de entrada: onboarding (1ª vez) → login simulado → app.
+        // O backend vai trocar o SessionStore por API depois.
+        val session = SessionStore(this)
+        if (!session.hasSeenOnboarding()) {
+            showOnboarding()
+            return
+        }
+        if (!session.isLoggedIn()) {
             showLogin()
             return
         }
@@ -62,6 +68,13 @@ class MainActivity : Activity() {
         setupRootView()
         renderCurrentScreen()
         checkForUpdates()
+    }
+
+    private fun showOnboarding() {
+        setContentView(OnboardingScreen(this) {
+            SessionStore(this).markOnboardingSeen()
+            showLogin()
+        }.buildView())
     }
 
     private fun showLogin() {

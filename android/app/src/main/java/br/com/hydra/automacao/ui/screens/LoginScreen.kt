@@ -62,14 +62,14 @@ class LoginScreen(
             })
             addView(space(28))
 
-            addView(label("Login Account", 22f, TEXT))
+            addView(label("Entrar na conta", 22f, TEXT))
             addView(space(4))
-            addView(label("Please login with registered account", 14f, HINT))
+            addView(label("Entre com sua conta cadastrada", 14f, HINT))
             addView(space(28))
 
-            addView(label("Email or Phone Number", 16f, TEXT))
+            addView(label("Email ou telefone", 16f, TEXT))
             addView(space(10))
-            emailInput = field("Enter your email or phone number",
+            emailInput = field("Digite seu email ou telefone",
                 InputType.TYPE_TEXT_VARIATION_EMAIL_ADDRESS)
             addView(emailInput, LinearLayout.LayoutParams(-1, dp(52)))
             emailError = TextView(context).apply {
@@ -82,13 +82,13 @@ class LoginScreen(
             addView(emailError, LinearLayout.LayoutParams(-1, -2))
             addView(space(16))
 
-            addView(label("Password", 16f, TEXT))
+            addView(label("Senha", 16f, TEXT))
             addView(space(10))
             addView(passwordRow())
             addView(space(15))
 
             addView(TextView(context).apply {
-                text = "Forgot Password?"
+                text = "Esqueceu a senha?"
                 textSize = 14f
                 typeface = HydraTheme.fontRegular
                 setTextColor(HINT)
@@ -96,7 +96,7 @@ class LoginScreen(
             }, LinearLayout.LayoutParams(-1, -2))
             addView(space(30))
 
-            signInButton = CozyButton(context, text = "Sign In", onClick = {
+            signInButton = CozyButton(context, text = "Entrar", onClick = {
                 tryLogin()
             }).apply {
                 background = HydraTheme.rounded(context, BTN_DISABLED, radiusDp = 30)
@@ -111,7 +111,7 @@ class LoginScreen(
                 addView(View(context).apply {
                     setBackgroundColor(FIELD_BORDER)
                 }, LinearLayout.LayoutParams(0, dp(1), 1f))
-                addView(label("Or using other method", 13f, HINT).apply {
+                addView(label("Ou use outro método", 13f, HINT).apply {
                     gravity = Gravity.CENTER
                     setPadding(dp(12), 0, dp(12), 0)
                 }, LinearLayout.LayoutParams(-2, -2))
@@ -121,9 +121,9 @@ class LoginScreen(
             }, LinearLayout.LayoutParams(-1, -2))
             addView(space(16))
 
-            addView(socialButton("Sign In with Google", R.drawable.ic_google))
+            addView(socialButton("Entrar com Google", R.drawable.ic_google))
             addView(space(15))
-            addView(socialButton("Sign In with Facebook", R.drawable.ic_facebook))
+            addView(socialButton("Entrar com Facebook", R.drawable.ic_facebook))
 
             emailInput.addTextChangedListener(SimpleWatcher { refreshButton() })
             passwordInput.addTextChangedListener(SimpleWatcher { refreshButton() })
@@ -157,7 +157,7 @@ class LoginScreen(
         setPadding(dp(14), 0, dp(8), 0)
 
         passwordInput = EditText(context).apply {
-            hint = "Enter your password"
+            hint = "Digite sua senha"
             setHintTextColor(HINT)
             setTextColor(TEXT)
             textSize = 14.5f
