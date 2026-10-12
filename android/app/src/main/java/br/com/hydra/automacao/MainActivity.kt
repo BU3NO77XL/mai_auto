@@ -16,6 +16,8 @@ import android.widget.Toast
 import br.com.hydra.automacao.automation.AutotestService
 import br.com.hydra.automacao.automation.HydraAccessibilityService
 import br.com.hydra.automacao.automation.TestResultStore
+import br.com.hydra.automacao.auth.SessionStore
+import br.com.hydra.automacao.ui.screens.LoginScreen
 import br.com.hydra.automacao.update.AppUpdateChecker
 import br.com.hydra.automacao.update.UpdateDialog
 import br.com.hydra.automacao.ui.components.CozyFloatingNav
@@ -50,9 +52,23 @@ class MainActivity : Activity() {
         window.decorView.systemUiVisibility =
             View.SYSTEM_UI_FLAG_LIGHT_STATUS_BAR or View.SYSTEM_UI_FLAG_LIGHT_NAVIGATION_BAR
 
+        // Login simulado (Figma Sign in): sem sessão, mostra login em tela
+        // cheia. O backend vai trocar o SessionStore por API depois.
+        if (!SessionStore(this).isLoggedIn()) {
+            showLogin()
+            return
+        }
+
         setupRootView()
         renderCurrentScreen()
         checkForUpdates()
+    }
+
+    private fun showLogin() {
+        setContentView(LoginScreen(this) { email ->
+            SessionStore(this).login(email.ifBlank { "visitante@mai.app" })
+            recreate()
+        }.buildView())
     }
 
     /**
