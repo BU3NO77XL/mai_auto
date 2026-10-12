@@ -17,3 +17,6 @@ captures/
 .externalNativeBuild/
 .cxx/
 *.zip
+# Exports brutos do Figma (referência): só os assets copiados p/ android/ importam.
+onboarding-8-compose/
+profile/
