@@ -31,7 +31,9 @@ class ProfileScreen(private val context: Context) {
         val content = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             setBackgroundColor(Color.WHITE)
-            setPadding(dp(16), dp(0), dp(16), dp(0))
+            // Ritmo vertical consistente: respiro 20 após o topBar, 24 entre
+            // seções (padrão das demais telas: título→conteúdo 24, blocos 20).
+            setPadding(dp(16), dp(20), dp(16), dp(0))
             addView(profileIdentity())
             addView(space(24))
             addView(devicesSection())
