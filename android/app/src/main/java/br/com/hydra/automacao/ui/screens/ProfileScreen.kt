@@ -16,7 +16,10 @@ import br.com.hydra.automacao.R
 import br.com.hydra.automacao.ui.theme.HydraTheme
 
 /** ApresentaÃ§Ã£o estÃ¡tica da tela Perfil â€” fiel ao Figma Ecarty Content 1:2737 + topbar 1:2891. */
-class ProfileScreen(private val context: Context) {
+class ProfileScreen(
+    private val context: Context,
+    private val onLogout: () -> Unit = {},
+) {
 
     fun buildView(): View = LinearLayout(context).apply {
         orientation = LinearLayout.VERTICAL
@@ -94,6 +97,17 @@ class ProfileScreen(private val context: Context) {
         }
         addView(identity, LinearLayout.LayoutParams(0, dp(60), 1f).apply {
             marginStart = dp(12)
+        })
+
+        // Botão sair: ícone logout 40dp à direita do nome, mesma linha.
+        // Volta para o login (limpa a sessão).
+        addView(ImageView(context).apply {
+            setImageResource(R.drawable.ic_profile_logout)
+            scaleType = ImageView.ScaleType.FIT_CENTER
+            adjustViewBounds = false
+            setOnClickListener { onLogout() }
+        }, LinearLayout.LayoutParams(dp(40), dp(40)).apply {
+            marginStart = dp(8)
         })
     }
 

@@ -268,7 +268,14 @@ class MainActivity : Activity() {
                 onToast = { showToast(it) }
             ).buildView()
 
-            CozyFloatingNav.NavTab.SETTINGS -> ProfileScreen(this).buildView()
+            CozyFloatingNav.NavTab.SETTINGS -> ProfileScreen(
+                context = this,
+                onLogout = {
+                    SessionStore(this).logout()
+                    currentTab = CozyFloatingNav.NavTab.HOME
+                    recreate()
+                },
+            ).buildView()
         }
 
         contentContainer.addView(screenView)

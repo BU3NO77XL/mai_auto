@@ -24,41 +24,33 @@ class UpdateDialog(
     private lateinit var updateButton: CozyButton
 
     companion object {
-        /** Títulos curtos e acolhedores, sorteados a cada exibição. */
+        /** Títulos curtos, sorteados a cada exibição. */
         private val TITLES = listOf(
             "Tem novidade pra você ✨",
             "Cheguei com melhorias 💚",
             "Olha o que preparei pra você 🎁",
-            "Atualização fresquinha 🌱",
-            "Passei pra deixar tudo melhor 🌟",
         )
 
-        /** Corpo em 1ª pessoa, sorteado junto. Mantém o passo a passo da permissão. */
+        /** Corpo em 1ª pessoa, curto. Dica de permissão embutida numa frase. */
         private val BODIES = listOf(
-            "Sou eu mesma trazendo melhorias para a sua experiência. " +
-                "Atualizar é rapidinho: toque abaixo e pronto!",
-            "Caprichei nessa versão para você ✨ Toque abaixo e " +
-                "em segundos já está tudo novinho.",
-            "Preparei tudo com carinho para a sua experiência ficar ainda melhor. " +
-                "É só tocar abaixo, rapidinho! 🎁",
-            "Vim deixar tudo redondinho para você 🌱 Um toque abaixo " +
-                "e já está pronta!",
-            "Quero ver você aproveitando o melhor de mim 🌟 " +
-                "Atualiza aqui embaixo, é rapidinho!",
+            "Sou eu mesma com novidades pra você. É rapidinho! 💚",
+            "Caprichei nessa versão ✨ Atualiza aqui embaixo!",
+            "Deixei tudo melhor pra você 🎁 Um toque e pronto!",
         )
 
         private const val PERMISSION_HINT =
-            "Se o celular pedir permissão para \"instalar apps de outras fontes\", " +
-                "não se preocupe, sou eu mesma. Toque em Configurações, " +
-                "ative a chavinha e volte aqui para concluir. 💚"
+            "Se pedir permissão de outras fontes, sou eu mesma — " +
+                "ative e volte aqui. 💚"
     }
 
     init {
-        val pad = HydraTheme.dp(context, 24)
+        val padH = HydraTheme.dp(context, 20)
+        val padV = HydraTheme.dp(context, 20)
         val card = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
-            background = HydraTheme.rounded(context, Color.WHITE, radiusDp = 20)
-            setPadding(pad, pad, pad, pad)
+            gravity = Gravity.CENTER_HORIZONTAL
+            background = HydraTheme.rounded(context, Color.WHITE, radiusDp = 24)
+            setPadding(padH, padV, padH, padV)
         }
 
         // Título + corpo sorteados (mesmo índice): nunca repete a mesma
@@ -81,34 +73,35 @@ class UpdateDialog(
             // Só versionName (padrão dos grandes apps): build number é
             // metadado interno e confunde o usuário leigo.
             text = "${TITLES[index]} · v${remote.version}"
-            textSize = 18f
+            textSize = 17f
             typeface = HydraTheme.fontMedium
             setTextColor(HydraTheme.textPrimary)
             gravity = Gravity.CENTER
         })
 
         card.addView(TextView(context).apply {
-            text = BODIES[index] + "\n\n" + PERMISSION_HINT
-            textSize = 14f
+            text = BODIES[index] + "\n" + PERMISSION_HINT
+            textSize = 13.5f
             typeface = HydraTheme.fontRegular
             setTextColor(HydraTheme.textSecondary)
             gravity = Gravity.CENTER
-            setPadding(0, HydraTheme.dp(context, 8), 0, HydraTheme.dp(context, 20))
+            setLineSpacing(HydraTheme.dp(context, 2).toFloat(), 1f)
+            setPadding(0, HydraTheme.dp(context, 10), 0, HydraTheme.dp(context, 18))
         })
 
         updateButton = CozyButton(context, text = "Atualizar agora", onClick = {
             updateButton.setLoading(true, "Baixando…")
             onUpdate()
         })
-        card.addView(updateButton, LinearLayout.LayoutParams(-1, -2))
+        card.addView(updateButton, LinearLayout.LayoutParams(-1, dp56()))
 
         card.addView(TextView(context).apply {
             text = "Depois"
-            textSize = 14f
+            textSize = 13.5f
             typeface = HydraTheme.fontMedium
             setTextColor(HydraTheme.textMuted)
             gravity = Gravity.CENTER
-            setPadding(0, HydraTheme.dp(context, 14), 0, 0)
+            setPadding(0, HydraTheme.dp(context, 12), 0, HydraTheme.dp(context, 2))
             setOnClickListener { dismiss() }
         })
 
@@ -123,4 +116,6 @@ class UpdateDialog(
         )
         setCanceledOnTouchOutside(true)
     }
+
+    private fun dp56(): Int = HydraTheme.dp(context, 56)
 }
