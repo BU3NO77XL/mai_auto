@@ -94,7 +94,7 @@ class LoginScreen(
                 setTextColor(HINT)
                 gravity = Gravity.END
             }, LinearLayout.LayoutParams(-1, -2))
-            addView(space(30))
+            addView(space(15))
 
             signInButton = CozyButton(context, text = "Entrar", onClick = {
                 tryLogin()
@@ -102,7 +102,7 @@ class LoginScreen(
                 background = HydraTheme.rounded(context, BTN_DISABLED, radiusDp = 30)
             }
             addView(signInButton, LinearLayout.LayoutParams(-1, dp(56)))
-            addView(space(28))
+            addView(space(15))
 
             // Divisória elegante com traços laterais (padrão profissional).
             addView(LinearLayout(context).apply {
