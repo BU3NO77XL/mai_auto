@@ -58,14 +58,16 @@ class ProfileScreen(
         setPadding(dp(16), dp(8), dp(16), dp(8))
         layoutParams = LinearLayout.LayoutParams(-1, dp(60))
 
-        val back = FrameLayout(context).apply {
-            background = HydraTheme.pill(context, BACK_BG)
-            addView(ImageView(context).apply {
-                setImageResource(R.drawable.ic_back_west)
-                scaleType = ImageView.ScaleType.FIT_CENTER
-            }, FrameLayout.LayoutParams(dp(24), dp(24), Gravity.CENTER))
-        }
-        addView(back, FrameLayout.LayoutParams(dp(44), dp(44), Gravity.START or Gravity.CENTER_VERTICAL))
+        // Botão voltar DESATIVADO nesta tela de Configurações (comentado).
+        // Para reativar, descomente o bloco abaixo.
+        // val back = FrameLayout(context).apply {
+        //     background = HydraTheme.pill(context, BACK_BG)
+        //     addView(ImageView(context).apply {
+        //         setImageResource(R.drawable.ic_back_west)
+        //         scaleType = ImageView.ScaleType.FIT_CENTER
+        //     }, FrameLayout.LayoutParams(dp(24), dp(24), Gravity.CENTER))
+        // }
+        // addView(back, FrameLayout.LayoutParams(dp(44), dp(44), Gravity.START or Gravity.CENTER_VERTICAL))
 
         addView(text("Configurações", 18f, TEXT).apply { gravity = Gravity.CENTER },
             FrameLayout.LayoutParams(-1, -1, Gravity.CENTER))

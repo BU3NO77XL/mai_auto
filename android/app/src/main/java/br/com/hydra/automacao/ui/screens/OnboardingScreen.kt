@@ -35,6 +35,23 @@ class OnboardingScreen(
     private fun mosaic() = FrameLayout(context).apply {
         setBackgroundColor(Color.WHITE)
         clipChildren = false
+        // Foto única de destaque (img_onboarding_hero) com cantos arredondados,
+        // centralizada com margens laterais — substitui o mosaico de 6 fotos.
+        addView(ImageView(context).apply {
+            setImageResource(R.drawable.img_onboarding_hero)
+            scaleType = ImageView.ScaleType.CENTER_CROP
+            background = HydraTheme.rounded(context, Color.rgb(240, 240, 240), radiusDp = 30)
+            clipToOutline = true
+        }, FrameLayout.LayoutParams(-1, dp(430), Gravity.CENTER).apply {
+            marginStart = dp(16)
+            marginEnd = dp(16)
+        })
+    }
+
+    @Deprecated("Mosaico antigo de 6 fotos — mantido para referência até remover os assets.")
+    private fun mosaicLegacy() = FrameLayout(context).apply {
+        setBackgroundColor(Color.WHITE)
+        clipChildren = false
         addView(LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_HORIZONTAL
