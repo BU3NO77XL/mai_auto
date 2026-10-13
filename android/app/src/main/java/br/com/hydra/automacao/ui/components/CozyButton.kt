@@ -96,16 +96,19 @@ class CozyButton(
             gravity = Gravity.CENTER
         }
         contentLayout.addView(labelView)
-        addView(contentLayout)
 
-        // Spinner de loading sobreposto
+        // Spinner inline à direita do texto (não sobreposto): aparece ao lado
+        // do label durante o loading, sem cobrir o texto.
         val spinnerColor = if (style == Style.PRIMARY) Color.WHITE else HydraTheme.primary
         spinnerView = CozyLoadingSpinner(context, strokeColor = spinnerColor, strokeWidthDp = 2.4f).apply {
-            val size = HydraTheme.dp(context, 20)
-            layoutParams = LayoutParams(size, size, Gravity.CENTER)
+            val size = HydraTheme.dp(context, 18)
+            layoutParams = LinearLayout.LayoutParams(size, size).also {
+                it.marginStart = HydraTheme.dp(context, 8)
+            }
             visibility = GONE
         }
-        addView(spinnerView)
+        contentLayout.addView(spinnerView)
+        addView(contentLayout)
 
         setOnClickListener {
             if (!isLoadingState) {
@@ -118,17 +121,11 @@ class CozyButton(
         isLoadingState = loading
         isEnabled = !loading
         if (loading) {
-            if (loadingText != null) {
-                labelView.text = loadingText
-                spinnerView.visibility = VISIBLE
-                iconView?.visibility = GONE
-            } else {
-                contentLayout.alpha = 0f
-                spinnerView.visibility = VISIBLE
-            }
+            if (loadingText != null) labelView.text = loadingText
+            spinnerView.visibility = VISIBLE
+            iconView?.visibility = GONE
         } else {
             labelView.text = text
-            contentLayout.alpha = 1f
             spinnerView.visibility = GONE
             iconView?.visibility = VISIBLE
         }
